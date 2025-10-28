@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 # This program designed for archiso ONLY
-source ./base.sh
+source ./utils.sh
 
 connect_to_wifi() {
     local wlan
@@ -67,44 +67,7 @@ connect_to_wifi() {
     iwctl station "$wlan" connect "$ssid"
 }
 
-partition_disk() {
-    local disk
-    echo "Listing Disks..."
-    ls /dev/ | grep -Ew "(sd[a-z]|nvme[0-9]+n[0-9]+)"
-    
-    disk=$(input "Enter the disk you want to partition: ")
-    echo "WARING: This will wipe all data on the disk!"
-    read -p "Confirm? [y/N] " confirm
-    if [ "$confirm" != "y" -a "$confirm" != "Y" ]; then
-        echo "Aborted."
-        exit
-    fi
-
-    parted --script /dev/$disk \
-        mklabel gpt \
-        mkpart ESP 1MiB 1025MiB \
-        mkpart ROOT 1025MiB 100% \
-        set 1 boot on
-    
-    part_prefix=""
-    if [[ $disk =~ ^nvme ]]; then
-        part_prefix="${disk}p"
-    else
-        part_prefix="${disk}"
-    fi
-    
-    # 格式化分区
-    mkfs.fat -F32 /dev/${part_prefix}1
-    mkfs.ext4 /dev/${part_prefix}2S
-
-    echo "Partitioning completed."
-    parted /dev/${disk} print
-
-    echo "Mounting partitions..."
-    mount /dev/${disk}2 /mnt
-    mount --mkdir /dev/${disk} /mnt/boot
-}
-
+### Boot checking
 if [ ! -e /sys/firmware/efi/fw_platform_size ]; then
     echo "You seems using BIOS, please refer Arch Wiki instead."
     exit
@@ -123,14 +86,8 @@ echo "Finding a mirror in China..."
 reflector -c China > /etc/pacman.d/mirrorlist
 
 ### New system stage
-read -p "Need partitioning? [Y/n] " opt
+echo "Stage Complete"
+echo "We are going to configure a new system"
+echo "Calling new file(basic_configuration.sh)..."
 
-if [ -z "$opt" -o "$opt" = "y" ]; then
-    partition_disk
-fi
-
-echo "Installing base system..."
-pacstrap -K /mnt base linux linux-firmware vim
-
-echo "Generating fstab..."
-genfstab -U /mnt >> /mnt/etc/fstab
+./configure_new_system.sh

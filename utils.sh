@@ -1,5 +1,7 @@
 #!/usr/bin/bash
 
+CMD_BASE="arch-chroot /mnt"
+
 input() {
     local prompt="$1"
     local repeat="y"
