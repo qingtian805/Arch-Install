@@ -13,6 +13,8 @@ add_user() {
     if [ "$sudo" = "y" -o "$sudo" = "Y" ]; then
         $CMD_BASE usermod -aG wheel $user_name
     fi
+
+    $CMD_BASE chsh -s /bin/zsh $user_name
 }
 
 ### Prepare disk
@@ -40,8 +42,16 @@ $CMD_BASE sed -e "s/#zh_CN.UTF-8 UTF-8/zh_CN.UTF-8 UTF-8/g" /etc/locale.gen
 # Network
 host_name=$(input "Enter system hostname")
 $CMD_BASE echo "$host_name" > /etc/hostname
+pacstrap /mnt networkmanager
+$CMD_BASE systemctl enable NetworkManager
+$CMD_BASE systemctl enable systemd-resolved
+$CMD_BASE ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
 # Users
+echo "Installing zsh..."
+pacstrap /mnt zsh zsh-completions grml-zsh-config
+$CMD_BASE chsh -s /usr/bin/zsh root
+
 echo "Set password for root"
 $CMD_BASE passwd
 
