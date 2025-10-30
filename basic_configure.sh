@@ -39,7 +39,7 @@ $CMD_BASE echo "LANG=en_US.UTF-8" > /etc/locale.conf
 $CMD_BASE sed -e "s/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g" /etc/locale.gen
 $CMD_BASE sed -e "s/#zh_CN.UTF-8 UTF-8/zh_CN.UTF-8 UTF-8/g" /etc/locale.gen
 
-# Network
+# Network: NetworkManager with systemd-resolved
 host_name=$(input "Enter system hostname")
 $CMD_BASE echo "$host_name" > /etc/hostname
 pacstrap /mnt networkmanager
@@ -67,7 +67,7 @@ done
 # Drivers
 pass="n"
 while [ "$pass" != "y" ]; do
-    CPU=$(input "CPU manufacturer:")
+    CPU=$(input "CPU manufacturer(Intel/AMD):")
     if [ "$CPU" = "Intel" ]; then
         pacstrap /mnt intel-ucode
         pass="y"
@@ -79,17 +79,22 @@ while [ "$pass" != "y" ]; do
     fi
 done
 
+source ./graphic.sh
 pass= "n"
 while [ "$pass" != "y" ]; do 
-    GPU=$(input "GPU manufacturer:")
-    if [ "$GPU" = "NVIDIA" ]; then
-        pacstrap /mnt nvidia nvidia-utils
+    GPU=$(input "GPU manufacturer(Intel/NVIDIA/AMD/ATI):")
+    if   [ "$GPU" = "NVIDIA" ]; then
+        graphic_nvidia
+    elif [ "$GPU" = "Intel" ]; then
+        graphic_intel
     elif [ "$GPU" = "AMD" ]; then
-        $CMD_BASE pacman -S xf86-video-amdgpu
-        pass="y"
+        graphic_AMD
+    elif [ "$GPU" = "ATI" ]; then
+        graphic_ATI
     else
         echo "Unknown GPU manufacturer."
     fi
+    read -p "Select another graphic driver? [y/N]" pass
 done
 
 
