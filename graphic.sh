@@ -39,12 +39,13 @@ graphic_nvidia() {
     echo "open:    Nvidia graphic driver(open source) for OpenGL and Vulkan(recommended for Turing and newer)"
     echo "dkms:    Nvidia graphic driver with DKMS"
     echo "nouveau: nouveau driver with OpenGL and Vulkan"
+    echo "DDX:     nouveau driver with DDX driver(Not recommended)"
     echo ""
-    echo "You can select booth dkms and open by separating them with space(eg. dkms open)"
-    echo "But nouveau MUST stanalone"
+    echo "You can select dkms and open together by separating them with space(eg. dkms open)"
+    echo "Or select nouvear and DDX together by separating them with space(eg. nouveau DDX)"
     echo ""
 
-    selection=$(input "Nvidia graphic driver selection [default|open|dkms|noveau]:")
+    selection=$(input "Nvidia graphic driver selection [default|open|dkms|nouveau|DDX]:")
 
     drivers="nvidia nvidia-utils"
 
@@ -54,10 +55,13 @@ graphic_nvidia() {
     if [[ "$selection" =~ "open" ]]; then
         drivers=`echo "$drivers"| sed "s/nvidia/nvidia-open/"`
     fi
-    if [ "$selection" = "nouveau" ]; then
+    if [[ "$selection" =~ "nouveau" ]]; then
         drivers="mesa vulkan-nouveau"
+        if [[ "$selection" =~ "DDX" ]]; then
+            drivers+=" xf86-video-nouveau"
+        fi
     fi
-
+    
     pacstrap /mnt $drivers
 }
 
@@ -91,7 +95,7 @@ graphic_ATI() {
     echo "You can select multiple options by separating them with space(eg. amber DDX)"
     echo ""
 
-    selection=$(input "Your selection [default|amber|DDX|]:")
+    selection=$(input "Your selection [default|amber|DDX]:")
 
     drivers="mesa"
 
@@ -102,11 +106,12 @@ graphic_ATI() {
         drivers=`echo "$drivers"| sed "s/mesa/mesa-amber/g"`
     fi
 
-    pacstrap /mnt $drivers
+    #pacstrap /mnt $drivers
+    echo "$drivers"
 }
 
 # You can run this script dedicatedly with the following command uncommented
-#graphic_AMD
-#graphic_ATI
 #graphic_intel
 #graphic_nvidia
+#graphic_AMD
+#graphic_ATI

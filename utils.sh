@@ -9,8 +9,8 @@ input() {
     
     while [ "$ok" = "n" -o "$ok" = "N" ]; do
         read -p "$prompt" user_input
-        echo "Your input is: $user_input" >&2  # 输出到stderr
         echo "" >&2
+        echo "Your input is: $user_input" >&2  # 输出到stderr
         read -p "Continue? [Y/n]?" ok
     done
 
