@@ -7,12 +7,13 @@ connect_to_wifi() {
     local wlan
     # Get the wireless interface
     iwctl device list
+    echo ""
 
     wlan=$(input "Enter the NAME of your wireless interface: ")
 
     # Set power on
     for i in 1 2 3; do
-        
+        echo ""
         read -p "Is it powered on? [y/N] " powered
         if [ "$powered" = "y" -o "$powered" = "Y" ]; then
             break
@@ -35,6 +36,7 @@ connect_to_wifi() {
     done
     # Set station on
     for i in 1 2; do
+        echo ""
         read -p "Is it in STATION mode? [y/N] " mode
         if [ "$mode" = "y" ]; then
             break
@@ -69,7 +71,7 @@ connect_to_wifi() {
 
 ### Boot checking
 if [ ! -e /sys/firmware/efi/fw_platform_size ]; then
-    echo "You seems using BIOS, please refer Arch Wiki instead."
+    echo "You seems using BIOS. However, this script is designed for UEFI, please refer Arch Wiki instead."
     exit
 fi
 
@@ -86,8 +88,13 @@ echo "Finding a mirror in China..."
 reflector -c China > /etc/pacman.d/mirrorlist
 
 ### New system stage
+echo ""
 echo "Stage Complete"
 echo "We are going to configure a new system"
-echo "Calling new file(basic_configuration.sh)..."
+echo ""
+echo "Press Enter to call basic_configuration.sh"
+read
 
 ./configure_new_system.sh
+
+return 0
