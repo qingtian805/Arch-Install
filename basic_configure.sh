@@ -97,9 +97,5 @@ while [ "$pass" != "y" ]; do
     read -p "Select another graphic driver? [y/N]" pass
 done
 
-
 # Bootloader
-source ./bootloader.sh
-systemd_boot
-
-
+./bootloader.sh

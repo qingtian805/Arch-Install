@@ -14,7 +14,7 @@ graphic_intel() {
     echo "You can select multiple options by separating them with space(eg. amber DDX)"
     echo ""
 
-    selection=$(input "Your selection [default|amber|DDX]:")
+    selection=$(input "Your selection [default/amber/DDX]:")
 
     drivers="mesa vulkan-intel intel-media-driver"
 
@@ -45,7 +45,7 @@ graphic_nvidia() {
     echo "Or select nouvear and DDX together by separating them with space(eg. nouveau DDX)"
     echo ""
 
-    selection=$(input "Nvidia graphic driver selection [default|open|dkms|nouveau|DDX]:")
+    selection=$(input "Nvidia graphic driver selection [default/open/dkms/nouveau/DDX]:")
 
     drivers="nvidia nvidia-utils"
 
@@ -73,7 +73,7 @@ graphic_AMD() {
     echo "DDX:     AMD graphic driver with DDX driver"
     echo ""
 
-    selection=$(input "Your selection [default|DDX]:")
+    selection=$(input "Your selection [default/DDX]:")
 
     drivers="mesa vulkan-radeon"
 
@@ -95,7 +95,7 @@ graphic_ATI() {
     echo "You can select multiple options by separating them with space(eg. amber DDX)"
     echo ""
 
-    selection=$(input "Your selection [default|amber|DDX]:")
+    selection=$(input "Your selection [default/amber/DDX]:")
 
     drivers="mesa"
 
