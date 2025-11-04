@@ -1,9 +1,9 @@
 #!/usr/bin/bash
 
 # Install tuned and tuned-ppd
-# sudo pacman -Syu tuned-ppd
+sudo pacman -Syu tuned-ppd
 
-# sudo systemctl enable tuned-ppd
+sudo systemctl enable tuned-ppd
 
 # Install Profiles
 sudo cp -r ./profiles/* /etc/tuned/profiles
