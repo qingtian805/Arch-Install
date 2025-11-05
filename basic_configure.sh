@@ -23,6 +23,8 @@ add_user() {
 ### Base system installation
 echo "Installing base system..."
 pacstrap -K /mnt base linux linux-firmware vim
+# manual
+pacstrap /mnt man-db man-pages texinfo
 
 ### Base system configuration
 echo "Generating fstab..."
