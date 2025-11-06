@@ -16,3 +16,8 @@ Sequance:
     * `graphic.sh`: Video card driver utility
     * `bootloader.sh`: Bootloader utility
 3. ``
+
+> Some restrictions for myself:
+> * Only use Y as default when asking whether to do something
+> * Module scripts NEVER asks whether to do something, this should be done in main script, ask how to do something
+> * Process that could fail should be wrapped in a module script

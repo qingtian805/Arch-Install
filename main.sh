@@ -76,7 +76,7 @@ if [ ! -e /sys/firmware/efi/fw_platform_size ]; then
 fi
 
 ### ISO setup stage
-read -p "Do you have a working internet connection? [y/N] " opt
+read -p "Need connect to Internet first? [Y/n] " opt
 if [ -z "$opt" -o "$opt" = "n" ]; then
     connect_to_wifi
 fi

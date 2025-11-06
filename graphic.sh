@@ -110,8 +110,15 @@ graphic_ATI() {
     echo "$drivers"
 }
 
-# You can run this script dedicatedly with the following command uncommented
-#graphic_intel
-#graphic_nvidia
-#graphic_AMD
-#graphic_ATI
+GPU=$(input "GPU manufacturer(Intel/NVIDIA/AMD/ATI):")
+if   [ "$GPU" = "NVIDIA" ]; then
+    graphic_nvidia
+elif [ "$GPU" = "Intel" ]; then
+    graphic_intel
+elif [ "$GPU" = "AMD" ]; then
+    graphic_AMD
+elif [ "$GPU" = "ATI" ]; then
+    graphic_ATI
+else
+    echo "Unknown GPU manufacturer."
+fi

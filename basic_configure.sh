@@ -18,6 +18,10 @@ add_user() {
 }
 
 ### Prepare disk
+read -p "Need to partition the disk? [Y/n]" opt
+if [ "$opt" != "n" -a "$opt" != "N" ]; then
+    ./disk.sh
+fi
 ./disk.sh
 
 ### Base system installation
@@ -61,42 +65,32 @@ echo "Setting up sudo..."
 pacstrap /mnt sudo
 $CMD_BASE echo "%wheel ALL=(ALL) ALL" > /etc/sudoers.d/50-allow-wheel
 
-read -p "Create another user? [y/N]" opt
-if [ "$opt" = "y" -o "$opt" = "Y" ]; then
+read -p "Create another user? [Y/n]" opt
+if [ "$opt" != "n" -a "$opt" != "N" ]; then
     add_user()
 done
 
 # Drivers
-pass="n"
-while [ "$pass" != "y" ]; do
+echo "Installing CPU microcode..."
+loop="y"
+while [ "$loop" = "y" ]; do
     CPU=$(input "CPU manufacturer(Intel/AMD):")
     if [ "$CPU" = "Intel" ]; then
         pacstrap /mnt intel-ucode
-        pass="y"
+        loop="n"
     elif [ "$CPU" = "AMD" ]; then
         pacstrap /mnt amd-ucode
-        pass="y"
+        loop="n"
     else
         echo "Unknown CPU manufacturer."
     fi
 done
 
-source ./graphic.sh
-pass= "n"
-while [ "$pass" != "y" ]; do 
-    GPU=$(input "GPU manufacturer(Intel/NVIDIA/AMD/ATI):")
-    if   [ "$GPU" = "NVIDIA" ]; then
-        graphic_nvidia
-    elif [ "$GPU" = "Intel" ]; then
-        graphic_intel
-    elif [ "$GPU" = "AMD" ]; then
-        graphic_AMD
-    elif [ "$GPU" = "ATI" ]; then
-        graphic_ATI
-    else
-        echo "Unknown GPU manufacturer."
-    fi
-    read -p "Select another graphic driver? [y/N]" pass
+echo "Installing graphic drivers..."
+loop= "y"
+while [ "$pass" != "n" -a "$pass" != "N" ]; do 
+    ./graphic.sh
+    read -p "Install another graphic driver? [Y/n]" loop
 done
 
 # Bootloader
