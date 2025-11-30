@@ -4,6 +4,22 @@ source ./utils.sh
 
 removable="0"
 
+systemd_entry=$(cat << EOF
+title   Arch Linux (linux)
+linux   /vmlinuz-linux
+initrd  /initramfs-linux.img
+options root=PARTUUID=__ROOT_UUID__ zswap.enabled=0 rw rootfstype=ext4
+EOF
+)
+
+systemd_entry_fallback=$(cat << EOF
+title   Arch Linux (fallback)
+linux   /vmlinuz-linux
+initrd  /initramfs-linux-fallback.img
+options root=PARTUUID=__ROOT_UUID__ zswap.enabled=0 rw rootfstype=ext4
+EOF
+)
+
 systemd_boot() {
     options=""
 
@@ -18,9 +34,12 @@ systemd_boot() {
     $CMD_BASE sed "s/#timeout 3/timeout 5/g" /boot/loader/loader.conf
 
     echo "Setting up entry..."
-    part_UUID=`lsblk -o NAME,MOUNTPOINT,UUID | grep /mnt | awk '{print $3}'`
-    conf="title   Arch Linux (linux)\nlinux   /vmlinuz-linux\ninitrd  /initramfs-linux.img\noptions root=PARTUUID=${part_UUID} zswap.enabled=0 rw rootfstype=ext4"
-    conf_fallback="title   Arch Linux (fallback)\nlinux   /vmlinuz-linux\ninitrd  /initramfs-linux-fallback.img\noptions root=PARTUUID=${part_UUID} zswap.enabled=0 rw rootfstype=ext4"
+    # Get root partition UUID
+    part_UUID=`lsblk -o NAME,MOUNTPOINT,UUID | grep "/mnt " | awk '{print $3}'`
+    # Generate entries
+    conf=$(echo "$systemd_entry" | sed "s/__ROOT_UUID__/${part_UUID}/g")
+    conf_fallback=$(echo "$systemd_entry_fallback" | sed "s/__ROOT_UUID__/${part_UUID}/g")
+
     $CMD_BASE echo -e "$conf" > /boot/loader/entries/linux.conf
     $CMD_BASE echo -e "$conf_fallback" > /boot/loader/entries/linux-fallback.conf
 }
@@ -45,7 +64,6 @@ if [ "$opt" = "y" -o "$opt" = "Y" ]; then
     removable="1"
 fi
 
-pass= "n"
 bootloader=$(input "Bootloader you want to use [systemd-boot/grub]:")
 if   [ "$bootloader" = "systemd-boot" ]; then
     systemd_boot
@@ -53,3 +71,4 @@ if   [ "$bootloader" = "systemd-boot" ]; then
 elif [ "$bootloader" = "grub" ]; then
     grub
     pass="y"
+fi
