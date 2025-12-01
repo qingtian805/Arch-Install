@@ -95,6 +95,6 @@ echo ""
 echo "Press Enter to call basic_configuration.sh"
 read
 
-./configure_new_system.sh
+./basic_system.sh
 
 return 0
