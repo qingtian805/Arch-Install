@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 wol=$(cat << 'EOF'
 # This file defines the Wake-on-LAN (WOL) settings for all network interfaces.

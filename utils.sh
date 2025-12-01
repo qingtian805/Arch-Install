@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 CMD_BASE="arch-chroot /mnt"
 

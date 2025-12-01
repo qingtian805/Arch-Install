@@ -1,10 +1,12 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 source ./utils.sh
 
+shell="bash"
+
 add_user() {
     user_name=$(input "Enter username")
-    $CMD_BASE useradd -m $user_name
+    $CMD_BASE useradd -m $user_name -s `whereis $shell`
 
     echo "Set password for $user_name"
     $CMD_BASE passwd $user_name
@@ -13,8 +15,6 @@ add_user() {
     if [ "$sudo" = "y" -o "$sudo" = "Y" ]; then
         $CMD_BASE usermod -aG wheel $user_name
     fi
-
-    $CMD_BASE chsh -s /bin/zsh $user_name
 }
 
 ### Prepare disk
@@ -29,6 +29,14 @@ echo "Installing base system..."
 pacstrap -K /mnt base linux linux-firmware vim
 # manual
 pacstrap /mnt man-db man-pages texinfo
+
+# zsh
+read -p "Install zsh? [Y/n]" opt
+if [ "$opt" != "n" -a "$opt" != "N" ]; then
+    pacstrap /mnt zsh zsh-completions grml-zsh-config
+    $CMD_BASE chsh -s `whereis zsh` root
+    shell="zsh"
+fi
 
 ### Base system configuration
 echo "Generating fstab..."
@@ -54,10 +62,6 @@ $CMD_BASE systemctl enable systemd-resolved
 $CMD_BASE ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
 # Users
-echo "Installing zsh..."
-pacstrap /mnt zsh zsh-completions grml-zsh-config
-$CMD_BASE chsh -s /usr/bin/zsh root
-
 echo "Set password for root"
 $CMD_BASE passwd
 

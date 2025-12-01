@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 # Install tuned and tuned-ppd
 sudo pacman -Syu tuned-ppd

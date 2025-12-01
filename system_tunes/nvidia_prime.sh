@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 udev=$(cat << 'EOF'
 # Enable runtime PM for NVIDIA VGA/3D controller devices on driver bind
@@ -24,12 +24,12 @@ if [ "$amphere" != "n" -a "$amphere" != "N" ]; then
     modprobe_opt=`echo "$modprobe_opt" | sed 's/0x02/0x03/'`
 fi
 
-echo "$modprobe_opt" | sudo tee /etc/modprobe.d/nvidia-prime.conf
+echo "$modprobe_opt" | sudo tee /etc/modprobe.d/nvidia-pm.conf
 
 # udev
 # pre-amphere need to set this
 if [ "$amphere" = "n" -o "$amphere" = "N" ]; then
-    echo "$udev" | sudo tee /etc/udev/rules.d/nvidia-prime.rules
+    echo "$udev" | sudo tee /etc/udev/rules.d/80-nvidia-pm.rules
 fi
 
 # Enable graphic memory persistence

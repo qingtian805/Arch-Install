@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 source ./utils.sh
 
@@ -60,15 +60,13 @@ grub() {
 }
 
 read -p "Is the device removable from system? [Y/n]" opt
-if [ "$opt" = "y" -o "$opt" = "Y" ]; then
+if [ "$opt" != "n" -a "$opt" = "N" ]; then
     removable="1"
 fi
 
 bootloader=$(input "Bootloader you want to use [systemd-boot/grub]:")
 if   [ "$bootloader" = "systemd-boot" ]; then
     systemd_boot
-    pass="y"
 elif [ "$bootloader" = "grub" ]; then
     grub
-    pass="y"
 fi

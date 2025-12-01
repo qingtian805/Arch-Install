@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 config=$(cat << EOF
 # set BFQ as default scheduler for HDD(scsi) and slow SSD(emmc)

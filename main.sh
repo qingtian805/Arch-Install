@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 # This program designed for archiso ONLY
 source ./utils.sh
