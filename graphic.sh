@@ -36,15 +36,16 @@ graphic_nvidia() {
     echo ""
     echo "Available options:"
     echo "default: Nvidia graphic driver(property) for OpenGL and Vulkan"
-    echo "         Not supports Blackwell(50xx) and newer"
+    echo "         Supports Maxwell(9xx+745+750) to Ada(40xx)"
     echo "open:    Nvidia graphic driver(open source) for OpenGL and Vulkan"
-    echo "         Supports Turing(16xx,20xx) and newer, Turing may have power saving issues"
+    echo "         Supports Turing(16xx,20xx) and newer, have power saving issue with Turing"
     echo "dkms:    Install Nvidia graphic driver with DKMS"
     echo "nouveau: nouveau driver with OpenGL and Vulkan"
     echo "DDX:     nouveau driver with DDX driver(Not recommended)"
     echo ""
     echo "You can select dkms and open together by separating them with space(eg. dkms open)"
     echo "Or select nouvear and DDX together by separating them with space(eg. nouveau DDX)"
+    echo "If you are using "
     echo ""
 
     selection=$(input "Nvidia graphic driver selection [default/open/dkms/nouveau/DDX]:")
