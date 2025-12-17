@@ -18,7 +18,6 @@ Sequance:
 3. ``
 
 > Some restrictions for myself:
-> * Only use Y as default when asking whether to do something during installation
->   * BUT in tuning scripts, I may use N as default for better comprehension.
 > * Module scripts NEVER asks whether to do something, this should be done in main script, ask how to do something
 > * Process that could fail should be wrapped in a module script
+> * Flags should be Y or N

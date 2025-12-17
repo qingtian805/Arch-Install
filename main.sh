@@ -1,13 +1,14 @@
 #!/bin/bash
 
 # This program designed for archiso ONLY
-source ./utils.sh
 
 ### Boot checking
 if [ ! -e /sys/firmware/efi/fw_platform_size ]; then
-    echo "You seems using BIOS. However, this script is designed for UEFI, please refer Arch Wiki instead."
+    echo "You seems using BIOS. However, this script is designed for UEFI."
     exit
 fi
+
+source ./utils.sh
 
 ### ISO setup stage
 read -p "Need connect to Wifi? [Y/n] " opt
@@ -22,7 +23,7 @@ echo "Finding a mirror in China..."
 reflector -c China > /etc/pacman.d/mirrorlist
 
 
-next_stage="./test.sh"
+next_stage="./basic_system.sh"
 ### New system stage
 echo ""
 echo "Stage Complete"

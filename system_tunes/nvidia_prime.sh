@@ -3,6 +3,16 @@
 # From Arch Wiki:
 # If you are using Amper(30xx) and above, you DO NOT really need to do anything.
 
+if [ ! -f /proc/drivers/nvidia/gpus/0000:01:00.0/power ]; then
+    echo "Please check whether you have installed Nvidia driver correctly."
+fi
+
+if [ `grep "Runtime D3" /proc/driver/nvidia/gpus/0000:01:00.0/power | awk '{print $4}'` = "Enabled" ]; then
+    echo "Your GPU is already enabled runtime PM."
+    exit
+fi
+
+
 udev=$(cat << 'EOF'
 # Enable runtime PM for NVIDIA VGA/3D controller devices on driver bind
 ACTION=="bind", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x030000", TEST=="power/control", ATTR{power/control}="auto"
@@ -24,15 +34,6 @@ modprobe_opt_ext=$(cat << 'EOF'
 options nvidia "NVreg_EnableGpuFirmware=0"
 EOF
 )
-
-if [ ! -f /proc/drivers/nvidia/gpus/0000:01:00.0/power ]; then
-    echo "Please check whether you have installed Nvidia driver correctly."
-fi
-
-if [ `grep "Runtime D3" /proc/driver/nvidia/gpus/0000:01:00.0/power | awk '{print $4}'` = "Enabled" ]; then
-    echo "Your GPU is already enabled runtime PM."
-    exit
-fi
 
 read -p "Is your GPU Amphere(30xx and above)? [Y/n]" amphere
 # modeprobed

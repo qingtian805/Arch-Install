@@ -1,10 +1,33 @@
 #!/bin/bash
 
+# Check UEFI
+if [ ! -e /sys/firmware/efi/fw_platform_size ]; then
+    echo "You seems using BIOS. However, this script is designed for UEFI."
+    exit
+fi
+
 source ./utils.sh
 
-removable="0"
+# Flags
+ldr_mpoint=""
+efi_mpoint="/mnt/boot"
+removable="N"
 
-systemd_entry=$(cat << EOF
+detect_partition() {
+    local efi_list=$(lsblk -o PARTTYPE,MOUNTPOINT | grep -i c12a7328-f81f-11d2-ba4b-00a0c93ec93b)
+    local ldr_list=$(lsblk -o PARTTYPE,MOUNTPOINT | grep -i bc13c2ff-59e6-4262-a352-b275fd6f7172)
+
+    # Check the mount point within /mnt
+    efi_mpoint=$(grep "/mnt/" <<< "${efi_list}" | awk '{print $2}' | sed 's/\/mnt//g')
+    ldr_mpoint=$(grep "/mnt/" <<< "${ldr_list}" | awk '{print $2}' | sed 's/\/mnt//g')
+
+    if [ -z "${efi_mpoint}" ]; then
+        echo "[BOOTLOADER] ERROR: EFI partition not detected"
+        exit
+    fi
+}
+
+systemd_entry=$(cat << 'EOF'
 title   Arch Linux (linux)
 linux   /vmlinuz-linux
 initrd  /initramfs-linux.img
@@ -12,19 +35,15 @@ options root=PARTUUID=__ROOT_UUID__ zswap.enabled=0 rw rootfstype=ext4
 EOF
 )
 
-systemd_entry_fallback=$(cat << EOF
-title   Arch Linux (fallback)
-linux   /vmlinuz-linux
-initrd  /initramfs-linux-fallback.img
-options root=PARTUUID=__ROOT_UUID__ zswap.enabled=0 rw rootfstype=ext4
-EOF
-)
-
 systemd_boot() {
-    options=""
+    local options=""
 
-    if [ $removable = "1" ]; then
-        options+="--variables=no"
+    # Process flags
+    if [ "${removable}" == "Y" ]; then
+        options+="--variables=no "
+    fi
+    if [ "${ldr_mpoint}" != "" ]; then
+        options+="--boot-path=${ldr_mpoint} --esp-path=${efi_mpoint} "
     fi
 
     echo "Installing systemd-boot..."
@@ -35,33 +54,40 @@ systemd_boot() {
 
     echo "Setting up entry..."
     # Get root partition UUID
-    part_UUID=`lsblk -o NAME,MOUNTPOINT,UUID | grep "/mnt " | awk '{print $3}'`
+    root_uuid=`lsblk -o NAME,MOUNTPOINT,UUID | grep "/mnt " | awk '{print $3}'`
     # Generate entries
-    conf=$(echo "$systemd_entry" | sed "s/__ROOT_UUID__/${part_UUID}/g")
-    conf_fallback=$(echo "$systemd_entry_fallback" | sed "s/__ROOT_UUID__/${part_UUID}/g")
+    conf=$(echo "${systemd_entry}" | sed "s/__ROOT_UUID__/${root_uuid}/g")
+    conf_fallback=$(sed "s/initramfs-linux/initramfs-linux-fallback/g" <<< "${conf}")
 
-    $CMD_BASE echo -e "$conf" > /boot/loader/entries/linux.conf
-    $CMD_BASE echo -e "$conf_fallback" > /boot/loader/entries/linux-fallback.conf
+    $CMD_BASE echo "${conf}"          > /boot/loader/entries/linux.conf
+    $CMD_BASE echo "${conf_fallback}" > /boot/loader/entries/linux-fallback.conf
 }
 
 grub() {
-    options="--target=x86_64-efi --efi-directory=/boot/ --bootloader-id=GRUB"
+    local options="--target=x86_64-efi --bootloader-id=GRUB "
 
-    if [ $removable = "1" ]; then
-        options=$(echo "$options" | sed "s/--bootloader-id=GRUB/--removable/g")
+    # Process flags
+    if [ $removable = "Y" ]; then
+        options=$(echo "${options}" | sed "s/--bootloader-id=GRUB/--removable/g")
     fi
+    # Grub need not change using xbootldr
+    options+= "--efi-directory=${efi_mpoint} "
 
     echo "Installing grub..."
     pacstrap /mnt grub
     $CMD_BASE pacman -S --asdeps efibootmgr
 
-    $CMD_BASE grub-install $options
+    $CMD_BASE grub-install ${options}
     $CMD_BASE grub-mkconfig -o /boot/grub/grub.cfg
 }
 
-read -p "Is the device removable from system? [Y/n]" opt
-if [ "$opt" != "n" -a "$opt" = "N" ]; then
-    removable="1"
+detect_partition
+
+read -p "Is the device removable from system? [y/N]" opt
+if [ "$opt" != "y" -a "$opt" = "Y" ]; then
+    removable="N"
+else
+    removable="Y"
 fi
 
 bootloader=$(input "Bootloader you want to use [systemd-boot/grub]:")
