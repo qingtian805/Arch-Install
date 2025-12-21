@@ -14,7 +14,7 @@ graphic_intel() {
     echo "You can select multiple options by separating them with space(eg. amber DDX)"
     echo ""
 
-    selection=$(input "Your selection [default/amber/DDX]:")
+    selection=$(input "Your selection [amber/DDX]:")
 
     drivers="mesa vulkan-intel intel-media-driver"
 
@@ -35,28 +35,22 @@ graphic_nvidia() {
     echo "Nvidia graphic driver selection"
     echo ""
     echo "Available options:"
-    echo "default: Nvidia graphic driver(property) for OpenGL and Vulkan"
-    echo "         Supports Maxwell(9xx+745+750) to Ada(40xx)"
-    echo "open:    Nvidia graphic driver(open source) for OpenGL and Vulkan"
-    echo "         Supports Turing(16xx,20xx) and newer, have power saving issue with Turing"
-    echo "dkms:    Install Nvidia graphic driver with DKMS"
-    echo "nouveau: nouveau driver with OpenGL and Vulkan"
-    echo "DDX:     nouveau driver with DDX driver(Not recommended)"
+    echo "default:  Nvidia graphic driver(open source) for OpenGL and Vulkan"
+    echo "          Supports Turing(16xx,20xx) and newer, have power saving issue with Turing"
+    echo "dkms:     Install Nvidia graphic driver with DKMS"
+    echo "nouveau:  nouveau driver with OpenGL and Vulkan"
+    echo "DDX:      nouveau driver with DDX driver(Not recommended)"
     echo ""
-    echo "You can select dkms and open together by separating them with space(eg. dkms open)"
-    echo "Or select nouvear and DDX together by separating them with space(eg. nouveau DDX)"
-    echo "If you are using "
+    echo "If you are using graphic card before 16xx, you need to install nouveau driver first"
+    echo "and install card specific driver from AUR manually after installation"
     echo ""
 
-    selection=$(input "Nvidia graphic driver selection [default/open/dkms/nouveau/DDX]:")
+    selection=$(input "Nvidia graphic driver selection [dkms/nouveau/DDX]:")
 
-    drivers="nvidia nvidia-utils"
+    drivers="nvidia-open"
 
     if [[ "$selection" =~ "dkms" ]]; then
-        drivers=`echo "$drivers"| sed "s/nvidia/nvidia-dkms/"`
-    fi
-    if [[ "$selection" =~ "open" ]]; then
-        drivers=`echo "$drivers"| sed "s/nvidia/nvidia-open/"`
+        drivers=`echo "$drivers"| sed "s/nvidia-open/nvidia-open-dkms/"`
     fi
     if [[ "$selection" =~ "nouveau" ]]; then
         drivers="mesa vulkan-nouveau"
@@ -76,7 +70,7 @@ graphic_AMD() {
     echo "DDX:     AMD graphic driver with DDX driver"
     echo ""
 
-    selection=$(input "Your selection [default/DDX]:")
+    selection=$(input "Your selection [DDX]:")
 
     drivers="mesa vulkan-radeon"
 
@@ -98,7 +92,7 @@ graphic_ATI() {
     echo "You can select multiple options by separating them with space(eg. amber DDX)"
     echo ""
 
-    selection=$(input "Your selection [default/amber/DDX]:")
+    selection=$(input "Your selection [amber/DDX]:")
 
     drivers="mesa"
 
