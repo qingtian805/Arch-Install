@@ -3,8 +3,9 @@
 # From Arch Wiki:
 # If you are using Amper(30xx) and above, you DO NOT really need to do anything.
 
-if [ ! -f /proc/drivers/nvidia/gpus/0000:01:00.0/power ]; then
+if [ ! -d /proc/drivers/nvidia ]; then
     echo "Please check whether you have installed Nvidia driver correctly."
+    exit
 fi
 
 if [ `grep "Runtime D3" /proc/driver/nvidia/gpus/0000:01:00.0/power | awk '{print $4}'` = "Enabled" ]; then
@@ -12,8 +13,16 @@ if [ `grep "Runtime D3" /proc/driver/nvidia/gpus/0000:01:00.0/power | awk '{prin
     exit
 fi
 
-
 udev=$(cat << 'EOF'
+# Remove NVIDIA USB xHCI Host Controller devices, if present
+ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x0c0330", ATTR{remove}="1"
+
+# Remove NVIDIA USB Type-C UCSI devices, if present
+ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x0c8000", ATTR{remove}="1"
+
+# Remove NVIDIA Audio devices, if present
+ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x040300", ATTR{remove}="1"
+
 # Enable runtime PM for NVIDIA VGA/3D controller devices on driver bind
 ACTION=="bind", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x030000", TEST=="power/control", ATTR{power/control}="auto"
 ACTION=="bind", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x030200", TEST=="power/control", ATTR{power/control}="auto"
@@ -26,32 +35,36 @@ EOF
 
 modprobe_opt=$(cat << 'EOF'
 # Enable Nvidia PRIME
-options nvidia "NVreg_DynamicPowerManagement=0x02"
+options nvidia "NVreg_DynamicPowerManagement=0x03"
 EOF
 )
 
-modprobe_opt_ext=$(cat << 'EOF'
+modprobe_disable_gsp=$(cat << 'EOF'
 options nvidia "NVreg_EnableGpuFirmware=0"
 EOF
 )
 
-read -p "Is your GPU Amphere(30xx and above)? [Y/n]" amphere
-# modeprobed
-# amphere need to set 0x03, while pre-amphere need to set 0x02
-if [ "$amphere" != "n" -a "$amphere" != "N" ]; then
-    modprobe_opt=`echo "$modprobe_opt" | sed 's/0x02/0x03/'`
+prime_tu_xxx() {
+    modprobe_opt=`echo "${modprobe_opt}" | sed 's/0x03/0x02/'`
+
+    echo "${modprobe_opt}" | sudo tee /etc/modprobe.d/nvidia-pm.conf
+    echo "${modprobe_disable_gsp}" | sudo tee -a /etc/modprobe.d/nvidia-pm.conf
+    echo "$udev" | sudo tee /etc/udev/rules.d/80-nvidia-pm.rules
+}
+
+prime_amp_above() {
+    echo "${modprobe_opt}" | sudo tee /etc/modprobe.d/nvidia-pm.conf
+    echo "$udev" | sudo tee /etc/udev/rules.d/80-nvidia-pm.rules
+}
+
+### Main
+
+# RTD3
+if lspci -d ::03xx | grep NVIDIA | grep 'TU1[0,1][2,4,6,7]'; then
+    prime_tu_xxx
+else
+    prime_amp_above
 fi
-
-echo "$modprobe_opt" | sudo tee /etc/modprobe.d/nvidia-pm.conf
-
-read -p "Disable GSP?(DO NOT do this unless you know what you are doing!) [y/N]" opt
-if [ "$opt" != "y" -a "$opt" != "Y" ]; then
-    echo "$modprobe_opt_ext" | sudo tee -a /etc/modprobe.d/nvidia-pm.conf
-fi
-
-# udev
-# pre-amphere need to set this, amphere may need this
-echo "$udev" | sudo tee /etc/udev/rules.d/80-nvidia-pm.rules
 
 # Enable graphic memory persistence
 sudo systemctl enable nvidia-persistenced

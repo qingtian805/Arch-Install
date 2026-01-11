@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ ! -d "/etc/sddm.conf.d" ]; then
+    sudo mkdir /etc/sddm.conf.d
+fi
+
 config=$(cat << 'EOF'
 [General]
 DisplayServer=wayland
