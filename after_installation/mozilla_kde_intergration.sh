@@ -39,12 +39,9 @@ mozilla_kde_intergration() {
         exit 1
     fi
 
-    # Edit profile
-    if [ "${1}" = "thunderbird" ]; then
-        profile=$(echo "$profile" | sed '4,7d')
+    if [ ! -e /etc/${1}/policies ]; then
+        sudo mkdir -p /etc/${1}/policies
     fi
-
-    sudo mkdir -p /etc/${1}/policies
     sudo tee /etc/${1}/policies/policies.json <<< "$profile" > /dev/null
 }
 
