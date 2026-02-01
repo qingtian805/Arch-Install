@@ -2,13 +2,13 @@
 
 fontconfig='./fontconfig.conf'
 
-fcitx_env=$(echo << 'EOF'
+fcitx_env=$(cat << 'EOF'
 # Setting up fcitx5 environments
 
 # Wayland
 export XMODIFIERS=@im=fcitx
 
-# Xorg
+# Xorg extension
 if test "$XDG_SESSION_TYPE" = "x11"; then
         export GTK_IM_MODULE=fcitx
         export QT_IM_MODULE=fcitx
@@ -22,13 +22,22 @@ config_fonts() {
     echo "Configuring fonts..."
     sudo ln -sf /usr/share/fontconfig/conf.default/50-user.conf /etc/fonts/conf.d
     sudo ln -sf /usr/share/fontconfig/conf.default/51-local.conf /etc/fonts/conf.d
-    sudo cp ./fontconfig.conf /mnt/etc/fonts/local.conf
+    sudo cp ./fontconfig.conf /etc/fonts/local.conf
 }
 
 fcitx() {
-    echo "Installing Fcitx..."
-    sudo pacman -Syu fcitx5-im
+
+    if pacman -Qi fcitx5; then
+        echo "Fcitx has installed"
+    else
+        echo "Installing Fcitx..."
+        sudo pacman -Syu fcitx5-im
+    fi
 
     # Environment Variables
-    echo "$fcitx_env" | sudo tee /etc/profile.d/fcitx.sh
+    echo "Setting up environments variables..."
+    sudo tee /etc/profile.d/fcitx.sh <<< "${fcitx_env}" > /dev/null
 }
+
+config_fonts
+fcitx
