@@ -3,7 +3,7 @@
 # From Arch Wiki:
 # If you are using Amper(30xx) and above, you DO NOT really need to do anything.
 
-if [ ! -d /proc/drivers/nvidia ]; then
+if [ ! -d /proc/driver/nvidia ]; then
     echo "Please check whether you have installed Nvidia driver correctly."
     exit
 fi
@@ -47,28 +47,37 @@ EOF
 prime_tu_xxx() {
     modprobe_opt=`echo "${modprobe_opt}" | sed 's/0x03/0x02/'`
 
-    echo "${modprobe_opt}" | sudo tee /etc/modprobe.d/nvidia-pm.conf
-    echo "${modprobe_disable_gsp}" | sudo tee -a /etc/modprobe.d/nvidia-pm.conf
-    echo "$udev" | sudo tee /etc/udev/rules.d/80-nvidia-pm.rules
+    echo "Writing config files"
+    echo "Enabling RTD3"
+    sudo tee /etc/modprobe.d/nvidia-pm.conf <<< "${modprobe_opt}" > /dev/null
+    echo "Disabling GSP firmware..."
+    sudo tee -a /etc/modprobe.d/nvidia-pm.conf <<< "${modprobe_disable_gsp}" > /dev/null
+    echo "Udev rules..."
+    sudo tee /etc/udev/rules.d/80-nvidia-pm.rules <<< "${udev}" > /dev/null
 }
 
 prime_amp_above() {
-    echo "${modprobe_opt}" | sudo tee /etc/modprobe.d/nvidia-pm.conf
-    echo "$udev" | sudo tee /etc/udev/rules.d/80-nvidia-pm.rules
+    echo "Writing config files"
+    echo "Enabling RTD3"
+    sudo tee /etc/modprobe.d/nvidia-pm.conf <<< "${modprobe_opt}" > /dev/null
+    echo "Udev rules..."
+    sudo tee /etc/udev/rules.d/80-nvidia-pm.rules <<< "${udev}" > /dev/null
 }
 
 ### Main
 
 # RTD3
 if lspci -d ::03xx | grep NVIDIA | grep 'TU1[0,1][2,4,6,7]'; then
+    echo "Turing detected, using turing profile"
     prime_tu_xxx
 else
     prime_amp_above
 fi
 
-# Enable graphic memory persistence
-sudo systemctl enable nvidia-persistenced
+echo "Enabling graphic memory persistence..."
+sudo systemctl enable nvidia-persistenced > /dev/null
 
+echo ""
 echo "Configure finished"
 echo ""
 echo "Reboot the system and run:"

@@ -1,18 +1,21 @@
 #!/bin/bash
 
-echo "Warning: You DO NOT really need to run this script."
-echo "Arch Linux has enabled this by default."
-echo "Run following command to check it first:"
-echo ""
-echo "grep PreserveVideoMemoryAllocations /proc/driver/nvidia/params"
-echo ""
-echo "If it returns 1, means it is enabled, you SHOULD exit."
-echo "Press Control+C to exit, or press Enter to continue."
+if ! lsmod | grep "nvidia" > /dev/null; then
+    echo "Please check wheather you have nvidia property driver installed correctly!"
+    exit 1
+fi
 
-read 
+if [ `grep PreserveVideoMemoryAllocations /proc/driver/nvidia/params | awk '{print $2}'` = "1" ]; then
+    echo "You already have Nvida Hibernate enabled!"
+    exit 0
+fi
 
-echo "options nvidia NVreg_PreserveVideoMemoryAllocations=1" | sudo tee /etc/modprobe.d/nvidia-hibernate.conf
+echo "Configure nvidia driver..."
+sudo tee /etc/modprobe.d/nvidia-hibernate.conf <<< "options nvidia NVreg_PreserveVideoMemoryAllocations=1" > /dev/null
 
+echo "Enabling services..."
 sudo systemctl enable nvidia-hibernate.service
 sudo systemctl enable nvidia-suspend.service
 sudo systemctl enable nvidia-resume.service
+
+echo "Finished!"
