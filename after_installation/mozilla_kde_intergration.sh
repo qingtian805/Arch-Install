@@ -28,12 +28,12 @@ EOF
 )
 
 mozilla_kde_intergration() {
-    pacman -Qi ${1} > /dev/null
+    pacman -Qi ${1} 1> /dev/null 2> /dev/null
     if [ $? -eq 1 ]; then
         echo "${1} not detected"
         exit 1
     fi
-    pacman -Qi xdg-desktop-portal-kde > /dev/null
+    pacman -Qi xdg-desktop-portal-kde 1> /dev/null 2> /dev/null
     if [ $? -eq 1 ]; then
         echo "xdg-desktop-portal-kde not detected"
         exit 1

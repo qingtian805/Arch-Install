@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if ! pacman -Qi sddm > /dev/null; then
+if ! pacman -Qi sddm 1> /dev/null 2> /dev/null; then
     echo "sddm is not installed!"
     exit 1
 fi

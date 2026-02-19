@@ -12,7 +12,7 @@ fi
 # Install tuned and tuned-ppd
 echo "Installing tuned and its dependency..."
 sudo pacman -Syu tuned-ppd
-if ! pacman -Qi x86_energy_perf_policy > /dev/null; then 
+if ! pacman -Qi x86_energy_perf_policy 1> /dev/null 2> /dev/null; then 
     sudo pacman -Syu --asdeps x86_energy_perf_policy
 fi
 

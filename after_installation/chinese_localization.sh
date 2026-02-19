@@ -27,7 +27,7 @@ config_fonts() {
 
 fcitx() {
 
-    if pacman -Qi fcitx5; then
+    if pacman -Qi fcitx5 1> /dev/null 2> /dev/null; then
         echo "Fcitx has installed"
     else
         echo "Installing Fcitx..."
