@@ -1,5 +1,14 @@
 #!/bin/bash
 
+if ! [ -e "./profiles" ]; then
+    echo "[ERROR] Missing profiles file, please check shell working directory."
+    exit 1
+fi
+if ! [ -e "./pdd.conf" ]; then
+    echo "[ERROR] Missing pdd config file, please check shell working directory."
+    exit 1
+fi
+
 # Install tuned and tuned-ppd
 echo "Installing tuned and its dependency..."
 sudo pacman -Syu tuned-ppd
