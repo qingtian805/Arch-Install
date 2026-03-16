@@ -4,6 +4,7 @@
 # 使用 sudo 将配置写入 /etc/systemd/zram-generator.conf
 
 if ! pacman -Qi zram-generator; then
+    echo "zram-generator not installed, installing..."
     sudo pacman -Syu zram-generator
 fi
 
