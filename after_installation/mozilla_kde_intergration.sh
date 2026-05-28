@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # This script will setup Mozilla applications to work with KDE Plasma
-# 
-# How it works: 
+#
+# How it works:
 # Using enterprise policy file in /etc/{firefox,thunderbird}/policies/policies.json
 
 profile=$(cat << 'EOF'
@@ -28,12 +28,12 @@ EOF
 )
 
 mozilla_kde_intergration() {
-    pacman -Qi ${1} 1> /dev/null 2> /dev/null
+    pacman -Qi ${1} > /dev/null 2>&1
     if [ $? -eq 1 ]; then
         echo "${1} not detected"
         exit 1
     fi
-    pacman -Qi xdg-desktop-portal-kde 1> /dev/null 2> /dev/null
+    pacman -Qi xdg-desktop-portal-kde > /dev/null 2>&1
     if [ $? -eq 1 ]; then
         echo "xdg-desktop-portal-kde not detected"
         exit 1

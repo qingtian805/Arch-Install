@@ -3,7 +3,7 @@
 # 脚本用于配置 zram-generator.conf
 # 使用 sudo 将配置写入 /etc/systemd/zram-generator.conf
 
-if ! pacman -Qi zram-generator; then
+if ! pacman -Qi zram-generator > /dev/null 2>&1; then
     echo "zram-generator not installed, installing..."
     sudo pacman -Syu zram-generator
 fi

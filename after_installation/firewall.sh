@@ -1,11 +1,11 @@
 #!/bin/bash
 
-if pacman -Qi iptables-legacy > /dev/null; then
+if pacman -Qi iptables-legacy > /dev/null 2>&1; then
     echo "legacy iptables detected, not performing installation"
     exit 1
 fi
 
-if ! pacman -Qi firewalld > /dev/null; then
+if ! pacman -Qi firewalld > /dev/null 2>&1; then
     echo "Installing firewalld..."
     sudo pacman -Syu firewalld
     sudo systemctl enable --now firewalld.service

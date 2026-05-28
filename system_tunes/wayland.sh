@@ -2,23 +2,24 @@
 
 echo "本脚本用于设置各种 GUI 库使用 Wayland, 详情见 https://wiki.archlinux.org/title/Wayland#GUI_libraries"
 echo "环境变量写入 /etc/profile.d/wayland.sh"
+read
 
 echo "正在设置 QT5"
-if ! pacman -Qi qt5-wayland > /dev/null; then
+if pacman -Qi qt5-base > /dev/null 2>&1 && ! pacman -Qi qt5-wayland > /dev/null 2>&1; then
     echo "检测到 qt5-wayland 未安装, 正在安装..."
     sudo pacman -Syu --asdeps qt5-wayland
 fi
 
 echo "正在设置 SDL2"
-sudo tee -a /etc/profile.d/wayland.sh > /dev/null << EOF
+sudo tee /etc/profile.d/wayland.sh > /dev/null << EOF
 # SDL2
-SDL_VIDEODRIVER="wayland,x11"
+export SDL_VIDEODRIVER="wayland,x11"
 EOF
 
 echo "正在设置 EFL"
 sudo tee -a /etc/profile.d/wayland.sh > /dev/null << EOF
 # EFL
-ELM_DISPLAY=wl
+export ELM_DISPLAY=wl
 EOF
 
 echo "设置完成, 现在除了 GLEW, JAVA 软件外, 应该均默认使用 Wayland, 但还有一些情况需要手动处理:"
