@@ -36,10 +36,10 @@ graphic_nvidia() {
     echo ""
     echo "Available options:"
     echo "default:  Nvidia graphic driver(open source) for OpenGL and Vulkan"
-    echo "          Supports Turing(16xx,20xx) and newer, have power saving issue with Turing"
+    echo "          Supports Turing(16xx,20xx) and newer"
     echo "dkms:     Install Nvidia graphic driver with DKMS"
     echo "nouveau:  nouveau driver with OpenGL and Vulkan"
-    echo "DDX:      nouveau driver with DDX driver(Not recommended)"
+    echo "DDX:      nouveau driver with DDX driver(NOT recommended)"
     echo ""
     echo "If you are using graphic card before 16xx, you need to install nouveau driver first"
     echo "and install card specific driver from AUR manually after installation"
@@ -58,7 +58,7 @@ graphic_nvidia() {
             drivers+=" xf86-video-nouveau"
         fi
     fi
-    
+
     pacstrap /mnt $drivers
 }
 

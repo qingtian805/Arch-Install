@@ -14,15 +14,6 @@ if [ `grep "Runtime D3" /proc/driver/nvidia/gpus/0000:01:00.0/power | awk '{prin
 fi
 
 udev=$(cat << 'EOF'
-# Remove NVIDIA USB xHCI Host Controller devices, if present
-ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x0c0330", ATTR{remove}="1"
-
-# Remove NVIDIA USB Type-C UCSI devices, if present
-ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x0c8000", ATTR{remove}="1"
-
-# Remove NVIDIA Audio devices, if present
-ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x040300", ATTR{remove}="1"
-
 # Enable runtime PM for NVIDIA VGA/3D controller devices on driver bind
 ACTION=="bind", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x030000", TEST=="power/control", ATTR{power/control}="auto"
 ACTION=="bind", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x030200", TEST=="power/control", ATTR{power/control}="auto"
@@ -50,8 +41,12 @@ prime_tu_xxx() {
     echo "Writing config files"
     echo "Enabling RTD3"
     sudo tee /etc/modprobe.d/nvidia-pm.conf <<< "${modprobe_opt}" > /dev/null
-    echo "Disabling GSP firmware..."
-    sudo tee -a /etc/modprobe.d/nvidia-pm.conf <<< "${modprobe_disable_gsp}" > /dev/null
+
+    major_version=$(cat "/sys/module/nvidia/version" | cut -d'.' -f1)
+    if [ "$major_version" -le 610 ]; then
+        echo "Disabling GSP firmware..."
+        sudo tee -a /etc/modprobe.d/nvidia-pm.conf <<< "${modprobe_disable_gsp}" > /dev/null
+    fi
     echo "Udev rules..."
     sudo tee /etc/udev/rules.d/80-nvidia-pm.rules <<< "${udev}" > /dev/null
 }
