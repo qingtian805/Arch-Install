@@ -1,6 +1,6 @@
 #!/bin/bash
 
-fontconfig='./fontconfig.conf'
+fontconfig='./src/fontconfig.conf'
 
 fcitx_env=$(cat << 'EOF'
 # Setting up fcitx5 environments
@@ -22,7 +22,7 @@ config_fonts() {
     echo "Configuring fonts..."
     sudo ln -sf /usr/share/fontconfig/conf.default/50-user.conf /etc/fonts/conf.d
     sudo ln -sf /usr/share/fontconfig/conf.default/51-local.conf /etc/fonts/conf.d
-    sudo cp ./fontconfig.conf /etc/fonts/local.conf
+    sudo cp ${fontconfig} /etc/fonts/local.conf
 }
 
 fcitx() {

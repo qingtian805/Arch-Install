@@ -23,10 +23,10 @@ echo "Installing tuned profiles..."
 if ! [ -e "/etc/tuned/profiles" ]; then
     mkdir -p /etc/tuned/profiles
 fi
-sudo cp -r ./profiles/* /etc/tuned/profiles
+sudo cp -r ./src/tuned/profiles/* /etc/tuned/profiles
 sudo chmod +x /etc/tuned/profiles/*/script.sh
 
 # configure tuned-ppd
 echo "Configure tuned-ppd..."
-sudo cp -f ./ppd.conf /etc/tuned/ppd.conf
+sudo cp -f ./src/tuned/ppd.conf /etc/tuned/ppd.conf
 
