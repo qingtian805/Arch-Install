@@ -10,7 +10,7 @@ add_user() {
 
     echo "Set password for $user_name"
     $CMD_BASE passwd $user_name
-    
+
     read -p "Should $user_name be in sudoers? [y/N]" sudo
     if [ "$sudo" = "y" -o "$sudo" = "Y" ]; then
         $CMD_BASE usermod -aG wheel $user_name
@@ -67,7 +67,8 @@ $CMD_BASE passwd
 
 echo "Setting up sudo..."
 pacstrap /mnt sudo
-$CMD_BASE echo "%wheel ALL=(ALL) ALL" > /etc/sudoers.d/50-allow-wheel
+$CMD_BASE echo "%wheel ALL=(ALL) ALL" > /etc/sudoers.d/10-allow-wheel
+$CMD_BASE chmod 440 /etc/sudoers.d/10-allow-wheel
 
 read -p "Create another user? [Y/n]" opt
 if [ "$opt" != "n" -a "$opt" != "N" ]; then
@@ -92,7 +93,7 @@ done
 
 echo "Installing graphic drivers..."
 loop= "y"
-while [ "$pass" != "n" -a "$pass" != "N" ]; do 
+while [ "$pass" != "n" -a "$pass" != "N" ]; do
     ./graphic.sh
     read -p "Install another graphic driver? [Y/n]" loop
 done
