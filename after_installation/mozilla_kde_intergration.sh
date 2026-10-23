@@ -20,6 +20,10 @@ profile=$(cat << 'EOF'
             "widget.gtk.global-menu.wayland.enabled": {
                 "Value": true,
                 "Status": "default"
+            },
+            "layout.css.system-ui.enabled": {
+                "Value": false,
+                "Status": "default"
             }
         }
     }
