@@ -18,8 +18,12 @@ if ! pacman -Qi tuned-ppd > /dev/null 2>&1;then
     echo "Installing tuned and its dependency..."
     sudo pacman -Syu tuned-ppd
 fi
-if ! pacman -Qi x86_energy_perf_policy > /dev/null 2>&1; then
-    sudo pacman -Syu --asdeps x86_energy_perf_policy
+if ! grep " hwp " /proc/cpuinfo > /dev/null 2>&1 &&\
+        ! pacman -Qi x86_energy_perf_policy > /dev/null 2>&1; then
+    sudo pacman -Syu x86_energy_perf_policy
+fi
+if ! pacman -Qi iw > /dev/null 2>&1; then
+    sudo pacman -Syu iw
 fi
 
 echo "Enabling service..."
