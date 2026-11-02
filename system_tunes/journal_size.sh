@@ -12,7 +12,18 @@ echo "如果要修改请参考https://man.archlinux.org/man/journald.conf.5"
 echo "按 Enter 执行脚本 按 Ctrl+C 退出脚本"
 read
 
-echo "设置 SystemMaxUse=${max_size}"
-sudo sed -i "/SystemMaxUse=/c\\SystemMaxUse=${max_size}" /etc/systemd/journald.conf
-echo "设置 MaxRetentionSec=${max_time}"
-sudo sed -i "/MaxRetentionSec=/c\\MaxRetentionSec=${max_time}" /etc/systemd/journald.conf
+if [ ! -d "/etc/systemd/journald.conf.d" ]; then
+    sudo mkdir -p /etc/systemd/journald.conf.d
+fi
+
+content=$(cat << 'EOF'
+[Journal]
+SystemMaxUse=_MAX_SIZE_
+MaxRetentionSec=_MAX_TIME_
+EOF
+)
+
+content=$(sed "s/_MAX_SIZE_/${max_size}/g" <<< ${content})
+content=$(sed "s/_MAX_TIME_/${max_time}/g" <<< ${content})
+
+sudo tee /etc/systemd/journald.conf.d/99-size-limit.conf <<< ${content} > /dev/null
