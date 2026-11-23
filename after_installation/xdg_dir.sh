@@ -9,8 +9,8 @@ if ![ -z "$XDG_CACHE_HOME" -a -z "$XDG_CONFIG_HOME" -a -z "$XDG_DATA_HOME" -a -z
     exit 1
 fi
 
-echo "正在写入配置"
-sudo tee /etc/profile.d/wayland.sh > /dev/null << EOF
+echo "正在写入配置 /etc/profile.d/xdg-dir.sh"
+sudo tee /etc/profile.d/xdg-dir.sh > /dev/null << EOF
 export XDG_CACHE_HOME="$HOME/.cache"
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$HOME/.local/share"
