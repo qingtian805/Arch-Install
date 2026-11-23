@@ -50,4 +50,19 @@ Depends = findutils
 Exec = /usr/bin/find /var/cache/pacman/pkg -maxdepth 1 -mindepth 1 -type d -delete
 EOF
 
+echo "配置写入 /etc/pacman.d/hooks/update-keyrings.hook"
+sudo tee /etc/pacman.d/hooks/update-keyrings.hook > /dev/null <<EOF
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = archlinux-keyring
+
+[Action]
+Description = Update keyring before transaction...
+When = PreTransaction
+Depends = pacman
+Exec = /usr/bin/pacman -S archlinux-keyring
+EOF
+
 echo "配置完成，下次有软件包升级后会自动清理无用软件包和下载失败目录"
