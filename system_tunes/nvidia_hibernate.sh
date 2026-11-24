@@ -14,7 +14,7 @@ if [ "$MAJOR_VERSION" -ge 595 ]; then
     exit 1
 fi
 
-if [ `grep PreserveVideoMemoryAllocations /proc/driver/nvidia/params | awk '{print $2}'` = "1" ]; then
+if [ $(grep PreserveVideoMemoryAllocations /proc/driver/nvidia/params | awk '{print $2}') = "1" ]; then
     echo "You already have Nvida Hibernate enabled!"
     exit 0
 fi

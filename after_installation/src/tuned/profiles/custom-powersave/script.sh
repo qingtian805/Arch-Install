@@ -11,13 +11,13 @@ start() {
         mark="auto"
         # Disable on mouse and keyboard
         for i in ${usb_dev}/*:*; do
-            if [ `cat "${i}/bInterfaceClass"` != "03" ]; then
+            if [ $(cat "${i}/bInterfaceClass") != "03" ]; then
                 continue
             fi
-            if [ `cat "${i}/bInterfaceSubClass"` != "01" ]; then
+            if [ $(cat "${i}/bInterfaceSubClass") != "01" ]; then
                 continue
             fi
-            if [ `cat "${i}/bInterfaceProtocol"` = "01" -o `cat "${i}/bInterfaceProtocol"` = "02" ]; then
+            if [ $(cat "${i}/bInterfaceProtocol") = "01" -o $(cat "${i}/bInterfaceProtocol") = "02" ]; then
                 mark="on"
                 break
             fi

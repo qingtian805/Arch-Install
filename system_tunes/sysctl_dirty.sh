@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mem=`LANG=en_US free | grep Mem: | awk '{print $2}'`
+mem=$(LANG=en_US free | grep Mem: | awk '{print $2}')
 
 if [ $mem -lt 2621440 ];then
     exit 0

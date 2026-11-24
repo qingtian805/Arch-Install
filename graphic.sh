@@ -22,10 +22,10 @@ graphic_intel() {
         drivers+=" xf86-video-intel"
     fi
     if [[ "$selection" =~ "amber" ]]; then
-        drivers=`echo "$drivers"| sed "s/mesa/mesa-amber/g"`
+        drivers=$(echo "$drivers"| sed "s/mesa/mesa-amber/g")
     fi
     if [[ "$selection" =~ "libva" ]]; then
-        drivers=`echo "$drivers"| sed "s/intel-media-driver/libva-intel-driver/g"`
+        drivers=$(echo "$drivers"| sed "s/intel-media-driver/libva-intel-driver/g")
     fi
 
     pacstrap /mnt $drivers
@@ -50,7 +50,7 @@ graphic_nvidia() {
     drivers="nvidia-open"
 
     if [[ "$selection" =~ "dkms" ]]; then
-        drivers=`echo "$drivers"| sed "s/nvidia-open/nvidia-open-dkms/"`
+        drivers=$(echo "$drivers"| sed "s/nvidia-open/nvidia-open-dkms/")
     fi
     if [[ "$selection" =~ "nouveau" ]]; then
         drivers="mesa vulkan-nouveau"
@@ -100,7 +100,7 @@ graphic_ATI() {
         drivers+=" xf86-video-ati"
     fi
     if [[ "$selection" =~ "amber" ]]; then
-        drivers=`echo "$drivers"| sed "s/mesa/mesa-amber/g"`
+        drivers=$(echo "$drivers"| sed "s/mesa/mesa-amber/g")
     fi
 
     #pacstrap /mnt $drivers

@@ -69,7 +69,7 @@ EOF
 
     echo "Setting up entry..."
     # Get root partition UUID and generate base entry config
-    root_uuid=`lsblk -o NAME,MOUNTPOINT,UUID | grep "/mnt " | awk '{print $3}'`
+    root_uuid=$(lsblk -o NAME,MOUNTPOINT,UUID | grep "/mnt " | awk '{print $3}')
     systemd_entry=$(sed "s/__ROOT_UUID__/${root_uuid}/g" <<< "${systemd_entry}")
 
     # Write linux entry

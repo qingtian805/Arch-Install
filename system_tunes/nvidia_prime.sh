@@ -8,7 +8,7 @@ if [ ! -d /proc/driver/nvidia ]; then
     exit
 fi
 
-if [ `grep "Runtime D3" /proc/driver/nvidia/gpus/0000:01:00.0/power | awk '{print $4}'` = "Enabled" ]; then
+if [ $(grep "Runtime D3" /proc/driver/nvidia/gpus/0000:01:00.0/power | awk '{print $4}') = "Enabled" ]; then
     echo "Your GPU is already enabled runtime PM."
     exit
 fi
@@ -36,7 +36,7 @@ EOF
 )
 
 prime_tu_xxx() {
-    modprobe_opt=`echo "${modprobe_opt}" | sed 's/0x03/0x02/'`
+    modprobe_opt=$(echo "${modprobe_opt}" | sed 's/0x03/0x02/')
 
     echo "Writing config files"
     echo "Enabling RTD3"
