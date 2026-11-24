@@ -5,7 +5,7 @@ deny=5
 echo "本脚本设置 faillock，faillock是 pam 用于处理认证失败情况的组件"
 echo "目前设置："
 echo "允许失败次数：${deny}"
-
+echo ""
 echo "如果要修改请参考https://man.archlinux.org/man/faillock.conf.5"
 echo "按 Enter 执行脚本 按 Ctrl+C 退出脚本"
 read

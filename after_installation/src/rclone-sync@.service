@@ -1,0 +1,12 @@
+[Unit]
+Description=Sync %i: to %h/%i on start up
+
+[Service]
+Type=oneshot
+ExecStartPre=/usr/bin/nm-online -q
+ExecStart=/usr/bin/rclone sync %i: ${HOME}/%i --create-empty-src-dirs --update -v
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=default.target
