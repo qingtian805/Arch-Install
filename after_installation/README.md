@@ -1,5 +1,7 @@
 ## After Installation Scrpts
 
-In this directory, are some scripts that are run after the reboot into the system.
+Scripts that are run after the reboot into the system, highly customizied for PERSONAL need. Including:
 
-WARINIG: Scripts here are highly customizied for persenal need, use with caution.
+1. Commonly used applications install scripts.
+2. Custom application configurations.
+3. Self made tools.

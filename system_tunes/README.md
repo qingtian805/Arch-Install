@@ -1,5 +1,7 @@
 ## System tuning Scrpts
 
-In this directory, are some scripts that are run after the reboot into the system.
+Scripts that designed to optimize the system. Including:
 
-Different is that these scripts are some general system tuning scripts directly from Arch Wiki(might be outdated, and with some little tweaks on filename for maintainability).
+1. Kernel paramter tuning.
+2. Configurations on systemd.
+3. Other softwares related to system and their configurations.
