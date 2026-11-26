@@ -1,6 +1,6 @@
 #!/bin/bash
 
-base_dir=`dirname "\`pwd\`/$0"`
+base_dir=$(dirname "$(pwd)/$0")
 profile_dir="${base_dir}/src/tuned/profiles"
 ppdconf_dir="${base_dir}/src/tuned/ppd.conf"
 

@@ -17,4 +17,4 @@ ACTION=="add", SUBSYSTEM=="net", NAME=="en*", RUN+="/usr/bin/ethtool -s $name wo
 EOF
 )
 
-echo "$wol" | sudo tee /etc/udev/rules.d/81-wol.rules
+sudo tee /etc/udev/rules.d/81-wol.rules <<< ${wol} > /dev/null

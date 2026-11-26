@@ -24,4 +24,4 @@ EOF
 cat <<< ${config}
 
 echo "Writing config to ${target_file}"
-echo "$config" | sudo tee ${target_file} > /dev/null
+sudo tee ${target_file} <<< ${config} > /dev/null
