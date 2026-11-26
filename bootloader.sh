@@ -2,8 +2,8 @@
 
 # Check UEFI
 if [ ! -e /sys/firmware/efi/fw_platform_size ]; then
-    echo "You seems using BIOS. However, but this script is designed for UEFI."
-    exit
+	echo "You seems using BIOS. However, but this script is designed for UEFI."
+	exit
 fi
 
 source ./utils.sh
@@ -18,124 +18,127 @@ cmd_line=""
 package=""
 
 detect_partition() {
-    local efi_list=$(lsblk -o PARTTYPE,MOUNTPOINT | grep -i c12a7328-f81f-11d2-ba4b-00a0c93ec93b)
-    local ldr_list=$(lsblk -o PARTTYPE,MOUNTPOINT | grep -i bc13c2ff-59e6-4262-a352-b275fd6f7172)
+	local efi_list=$(lsblk -o PARTTYPE,MOUNTPOINT \
+		| grep -i c12a7328-f81f-11d2-ba4b-00a0c93ec93b)
+	local ldr_list=$(lsblk -o PARTTYPE,MOUNTPOINT \
+		| grep -i bc13c2ff-59e6-4262-a352-b275fd6f7172)
 
-    # Check the mount point within /mnt as root
-    efi_mpoint=$(echo "${efi_list}" | awk '{print $2}' | grep "/mnt/" | sed 's/\/mnt//g')
-    ldr_mpoint=$(echo "${ldr_list}" | awk '{print $2}' | grep "/mnt/" | sed 's/\/mnt//g')
+	#Check the mount point within /mnt as root
+	efi_mpoint=$(echo "${efi_list}" | awk '{print $2}' | grep "/mnt/"\
+		| sed 's/\/mnt//g')
+	ldr_mpoint=$(echo "${ldr_list}" | awk '{print $2}' | grep "/mnt/"\
+		| sed 's/\/mnt//g')
 
-    if [ -z "${efi_mpoint}" ]; then
-        echo "[BOOTLOADER] ERROR: EFI partition not detected"
-        exit 1
-    fi
+	if [ -z "${efi_mpoint}" ]; then
+		echo "[BOOTLOADER] ERROR: EFI partition not detected"
+		exit 1
+	fi
 }
 
 systemd_boot() {
-    local options=""
-    local loader_conf=$(cat << 'EOF'
-timeout 5
-EOF
-    )
-    local systemd_entry=$(cat << 'EOF'
-title   Arch Linux (linux)
-linux   /vmlinuz-linux
-initrd  /initramfs-linux.img
-options root=PARTUUID=__ROOT_UUID__ zswap.enabled=0 rw rootfstype=ext4
-EOF
-    )
+	local root_uuid=$(lsblk -o NAME,MOUNTPOINT,UUID | grep "/mnt " | awk '{print $3}')
 
-    # Removable
-    if [ "${removable}" == "Y" ]; then
-        options="${options} --variables=no"
-    fi
+	local options=""
+	local loader_conf=$(cat <<- EOF
+		timeout 5
+		EOF
+	)
+	local systemd_entry=$(cat <<- EOF
+		title   Arch Linux (linux)
+		linux   /vmlinuz-linux
+		initrd  /initramfs-linux.img
+		options root=PARTUUID=${root_uuid} zswap.enabled=0 rw rootfstype=ext4
+		EOF
+	)
 
-    # Systemd-boot auto enables os-probe
-    if [ "${detect_entry}" == "N" ]; then
-        loader_conf=$(sed '$a auto-entries no' <<< ${loader_conf})
-    fi
+	# Removable
+	if [ "${removable}" == "Y" ]; then
+		options="${options} --variables=no"
+	fi
 
-    # xbootldr
-    if [ "${ldr_mpoint}" != "" ]; then
-        options="${options} --boot-path=${ldr_mpoint} --esp-path=${efi_mpoint}"
-    fi
+	# Systemd-boot auto enables os-probe
+	if [ "${detect_entry}" == "N" ]; then
+		loader_conf=$(sed '$a auto-entries no' <<< ${loader_conf})
+	fi
 
-    # install to system
-    echo "Installing systemd-boot..."
-    $CMD_BASE bootctl install ${options}
+	# xbootldr
+	if [ "${ldr_mpoint}" != "" ]; then
+		options="${options} --boot-path=${ldr_mpoint} --esp-path=${efi_mpoint}"
+	fi
 
-    echo "Configuring systemd-boot..."
-    $CMD_BASE echo '${loader_conf}' > ${efi_mpoint}/loader/loader.conf
+	# install to system
+	echo "Installing systemd-boot..."
+	$CMD_BASE bootctl install ${options}
 
-    echo "Setting up entry..."
-    # Get root partition UUID and generate base entry config
-    root_uuid=$(lsblk -o NAME,MOUNTPOINT,UUID | grep "/mnt " | awk '{print $3}')
-    systemd_entry=$(sed "s/__ROOT_UUID__/${root_uuid}/g" <<< "${systemd_entry}")
+	echo "Configuring systemd-boot..."
+	$CMD_BASE echo '${loader_conf}' > ${efi_mpoint}/loader/loader.conf
 
-    # Write linux entry
-    $CMD_BASE echo "${conf}" > ${efi_mpoint}/loader/entries/linux.conf
-    # Write fallback entry if used
-    conf_fallback=$(sed "s/initramfs-linux/initramfs-linux-fallback/g" <<< "${conf}")
-    if [ -e "/mnt/boot/initramfs-linux-fallback.img" ]; then
-        $CMD_BASE echo "${conf_fallback}" > ${efi_mpoint}/loader/entries/linux-fallback.conf
-    fi
+	echo "Setting up entry..."
+	# Get root partition UUID and generate base entry config
 
-    cmd_line="/usr/bin/bootctl install ${options}"
+
+	# Write linux entry
+	$CMD_BASE echo "${conf}" > ${efi_mpoint}/loader/entries/linux.conf
+	# Write fallback entry if used
+	conf_fallback=$(sed "s/initramfs-linux/initramfs-linux-fallback/g" <<< "${conf}")
+	if [ -e "/mnt/boot/initramfs-linux-fallback.img" ]; then
+		$CMD_BASE echo "${conf_fallback}" > ${efi_mpoint}/loader/entries/linux-fallback.conf
+	fi
+
+	cmd_line="/usr/bin/bootctl install ${options}"
 }
 
 grub() {
-    local options="--target=x86_64-efi --bootloader-id=GRUB"
-    local dependencies="efibootmgr"
+	local options="--target=x86_64-efi --bootloader-id=GRUB"
+	local dependencies="efibootmgr"
 
-    # Removable
-    if [ $removable = "Y" ]; then
-        options="${options} --removable"
-    fi
+	# Removable
+	if [ $removable = "Y" ]; then
+		options="${options} --removable"
+	fi
 
-    # Os-prober
-    if [ ${detect_entry} = "Y" ]; then
-        dependencies="${dependencies} os-prober"
-        $CMD_BASE sed "s/#GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/" /etc/default/grub
-    fi
+	# Os-prober
+	if [ ${detect_entry} = "Y" ]; then
+		dependencies="${dependencies} os-prober"
+		$CMD_BASE sed "s/#GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/" /etc/default/grub
+	fi
 
-    # Grub need no to specify xbootldr
-    options="${options} --efi-directory=${efi_mpoint} "
+	# Grub need no to specify xbootldr
+	options="${options} --efi-directory=${efi_mpoint} "
 
-    echo "Installing grub..."
-    # package and dependencies
-    $CMD_BASE pacman -S grub
-    $CMD_BASE pacman -S --asdeps ${dependencies}
+	echo "Installing grub..."
+	# package and dependencies
+	$CMD_BASE pacman -S grub
+	$CMD_BASE pacman -S --asdeps ${dependencies}
 
-    # install to system and configure
-    $CMD_BASE grub-install ${options}
-    $CMD_BASE grub-mkconfig -o /boot/grub/grub.cfg
+	# install to system and configure
+	cmd_line="/bin/sh -c '/usr/bin/grub-install ${options};"
+	cmd_line+="/usr/bin/grub-mkconfig -o /boot/grub/grub.cfg'"
 
-    cmd_line="/bin/sh -c '/usr/bin/grub-install ${options}; /usr/bin/grub-mkconfig -o /boot/grub/grub.cfg'"
+	$CMD_BASE $cmd_line
 }
 
 alpm_hook() {
-    local hook=$(cat << 'EOF'
-[Trigger]
-Operation = Upgrade
-Operation = Install
-Type = Package
-Target = __PACKAGE__
 
-[Actions]
-Description = Upgrading __PACKAGE__...
-When = PostTransaction
-Depends = __PACKAGE__
-Exec = __CMD_LINE__
-EOF
-    )
+	local hook=$(cat <<- EOF
+		[Trigger]
+		Operation = Upgrade
+		Operation = Install
+		Type = Package
+		Target = ${package}
 
-    hook=$(sed "s/__PACKAGE__/${package}/g"   <<< "${hook}")
-    hook=$(sed "s/__CMD_LINE__/${cmd_line}/g" <<< "${hook}")
+		[Action]
+		Description = Upgrading ${package}...
+		When = PostTransaction
+		Depends = ${package}
+		Exec = ${cmd_line}
+		EOF
+	)
 
-    if ! [ -d "/mnt/etc/pacman.d/hooks" ]; then
-        mkdir /mnt/etc/pacman.d/hooks
-    fi
-    $CMD_BASE echo ${hook} > /etc/pacman.d/hooks/bootloader.hook
+	if ! [ -d "/mnt/etc/pacman.d/hooks" ]; then
+		mkdir /mnt/etc/pacman.d/hooks
+	fi
+	$CMD_BASE tee /mnt/etc/pacman.d/hooks/bootloader.hook <<< ${hook} > /dev/null
 }
 
 # ------ MAIN ----------
@@ -143,28 +146,28 @@ detect_partition
 
 read -p "Is the device removable from system? [y/N]" opt
 if [ "$opt" != "y" -a "$opt" = "Y" ]; then
-    removable="N"
+	removable="N"
 else
-    removable="Y"
+	removable="Y"
 fi
 
 read -p "Detect other OS in esp? [Y/n]" opt
 if [ "$opt" != "n" -a "$opt" = "N" ]; then
-    detect_entry="Y"
+	detect_entry="Y"
 else
-    detect_entry="N"
+	detect_entry="N"
 fi
 
 bootloader=$(input "Bootloader you want to use [systemd-boot/grub]:")
 if   [ "$bootloader" = "systemd-boot" ]; then
-    package="systemd"
-    systemd_boot
+	package="systemd"
+	systemd_boot
 elif [ "$bootloader" = "grub" ]; then
-    package="grub"
-    grub
+	package="grub"
+	grub
 else
-    echo "Unsupported bootloader!"
-    exit 1
+	echo "Unsupported bootloader!"
+	exit 1
 fi
 
 echo "Configuring alpm hook..."
